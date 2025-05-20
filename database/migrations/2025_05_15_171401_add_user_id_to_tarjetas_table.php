@@ -11,7 +11,7 @@ return new class extends Migration
      */
    public function up()
 {
-    Schema::table('cards', function (Blueprint $table) {
+    Schema::table('tarjetas', function (Blueprint $table) {
         $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
     });
 }
