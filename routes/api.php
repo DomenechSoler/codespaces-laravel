@@ -4,40 +4,60 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\TarjetasController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Middleware\IsAdmin;
 use App\Http\Middleware\IsUserAuth;
+use App\Http\Controllers\GameController;
+use App\Models\Tarjetas;
 
-
-
-//PUBLIC ROUTES
+// RUTAS PÚBLICAS
+Route::post('register', [AuthController::class, 'register']);
+Route::post('login', [AuthController::class, 'login']);
 
 Route::get('tarjetas', [TarjetasController::class, 'index']);
 Route::get('tarjetas/{id}', [TarjetasController::class, 'show']);
-Route::post('tarjetas', [TarjetasController::class, 'store']);
-Route::put('tarjetas/{id}', [TarjetasController::class, 'update']);
-Route::delete('tarjetas/{id}', [TarjetasController::class, 'destroy']);
+Route::get('tarjetas/category/{categoryId}', [TarjetasController::class, 'getByCategory']);
+Route::get('my-cards', [TarjetasController::class, 'myCards']);
+Route::get('public-cards', [TarjetasController::class, 'publicCards']);
 
-
-Route::post('register', [AuthController::class, 'register']);
-Route::post('login', [AuthController::class, 'login']);
-Route::get('tarjetas', [TarjetasController::class, 'index']);
-Route::get('/tarjetas/{id}', [TarjetasController::class, 'show']);
-
-//PROTECTED ROUTES
+// RUTAS PROTEGIDAS (USUARIO AUTENTICADO)
 Route::middleware([IsUserAuth::class])->group(function () {
+    // Usuario
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('me', [AuthController::class, 'getUser']);
+    Route::get('users/{id}', [AuthController::class, 'getUserById']);
+    Route::put('users/{id}', [AuthController::class, 'updateUser']);
+
+    // Tarjetas (crear solo si está autenticado)
     Route::post('tarjetas', [TarjetasController::class, 'store']);
+
+    // Partidas
+    Route::get('games', [GameController::class, 'index']);
+    Route::post('games', [GameController::class, 'store']);
+    Route::put('games/{game}/finish', [GameController::class, 'update']);
+    Route::delete('games/{game}', [GameController::class, 'destroy']);
+    Route::get('ranking', [GameController::class, 'ranking']);
+
+    // Categorías
+    Route::get('categories', [CategoryController::class, 'index']);
+    Route::post('categories', [CategoryController::class, 'store']);
+    Route::put('categories/{category}', [CategoryController::class, 'update']);
+    Route::delete('categories/{category}', [CategoryController::class, 'destroy']);
 });
 
-//ADMIN ROUTES
+// RUTAS SOLO ADMIN
 Route::middleware([IsAdmin::class])->group(function () {
-
+    // Usuarios
     Route::get('users', [AuthController::class, 'getUsers']);
-    Route::get('/users/{id}', [AuthController::class, 'getUser']);
-    Route::put('/users/{id}', [AuthController::class, 'updateUser']);
-    Route::delete('/users/{id}', [AuthController::class, 'deleteUser']);
+    Route::get('users/{id}', [AuthController::class, 'getUser']);
+    Route::put('users/{id}', [AuthController::class, 'updateUser']);
+    Route::delete('users/{id}', [AuthController::class, 'deleteUser']);
+
+    // Tarjetas
     Route::post('tarjetas', [TarjetasController::class, 'store']);
-    Route::put('/tarjetas/{id}', [TarjetasController::class, 'update']);
-    Route::delete('/tarjetas/{id}', [TarjetasController::class, 'destroy']);
+    Route::put('tarjetas/{id}', [TarjetasController::class, 'update']);
+    Route::delete('tarjetas/{id}', [TarjetasController::class, 'destroy']);
+
+    // Juegos
+    Route::get('games/user/{id}', [GameController::class, 'getGamesByUserId']);
 });

@@ -4,8 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Tarjetas; 
+use App\Models\Tarjetas;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class TarjetasController extends Controller
 {
@@ -25,21 +26,27 @@ class TarjetasController extends Controller
         }
     }
 
-    public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'nombre' => 'required|string|max:255',
-            'imagen' => 'nullable|string|max:255',
-            'contador_clics' => 'nullable|integer|min:0',
-        ]);
+public function store(Request $request)
+{
+    $request->validate([
+        'nombre' => 'required|string|max:100',
+        'url_imagen' => 'required|url',
+        'category_id' => 'nullable|exists:categories,id',
+    ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
+    $tarjeta = Tarjetas::create([
+        'nombre' => $request->nombre,
+        'url_imagen' => $request->url_imagen,
+        'category_id' => $request->category_id,
+        'user_id' => Auth::id(), // 🔑 afegim l'usuari que l'ha creat
+    ]);
 
-        $tarjeta = Tarjetas::create($request->all());
-        return response()->json(['tarjeta' => $tarjeta], 201);
-    }
+    return response()->json([
+        'message' => 'Targeta creada',
+        'data' => $tarjeta
+    ], 201);
+}
+
 
     public function update(Request $request, $id)
     {
@@ -62,14 +69,43 @@ class TarjetasController extends Controller
         return response()->json(['tarjeta' => $tarjeta], 200);
     }
 
-    public function destroy($id)
-    {
-        $tarjeta = Tarjetas::find($id);
-        if (!$tarjeta) {
-            return response()->json(['message' => 'Tarjeta not found'], 404);
-        }
+    // public function destroy($id)
+    // {
+    //     $tarjeta = Tarjetas::find($id);
+    //     if (!$tarjeta) {
+    //         return response()->json(['message' => 'Tarjeta not found'], 404);
+    //     }
 
-        $tarjeta->delete();
-        return response()->json(['message' => 'Tarjeta deleted successfully'], 200);
+    //     $tarjeta->delete();
+    //     return response()->json(['message' => 'Tarjeta deleted successfully'], 200);
+    // }
+    public function getByCategory($categoryId)
+{
+    $tarjeta = Tarjetas::where('category_id', $categoryId)->get();
+
+    return response()->json($tarjeta);
+}
+
+public function myCards()
+{
+    $tarjeta = Tarjetas::where('user_id', Auth::id())->get();
+
+    return response()->json([
+        'message' => 'Les teves targetes',
+        'data' => $tarjeta
+    ]);
+}
+
+public function destroy(Tarjetas $tarjeta)
+{
+    $user = Auth::user();
+    if ($tarjeta->user_id !== $user->id && $user->role !== 'admin') {
+        return response()->json(['error' => 'No autoritzat'], 403);
     }
+
+    $tarjeta->delete();
+    return response()->json(['message' => 'Targeta eliminada']);
+}
+
+
 }
