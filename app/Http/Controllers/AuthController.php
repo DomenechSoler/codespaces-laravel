@@ -97,4 +97,65 @@ class AuthController extends Controller
             ], 500);
         }
     }
+    public function getUsers()
+{
+    return response()->json([
+        'message' => 'Users retrieved successfully',
+        'data' => User::all(),
+    ], 200);
+}
+
+// Mostrar usuario por id (admin o el propio usuario)
+public function getUserById($id)
+{
+    $user = Auth::user();
+    if ($user->role === 'admin' || $user->id == $id) {
+        $found = User::find($id);
+        if (!$found) {
+            return response()->json(['message' => 'Usuario no encontrado'], 404);
+        }
+        return response()->json(['data' => $found], 200);
+    }
+    return response()->json(['message' => 'No autorizado'], 403);
+}
+
+// Actualizar usuario (admin o el propio usuario)
+public function updateUser(Request $request, $id)
+{
+    $user = Auth::user();
+    if ($user->role === 'admin' || $user->id == $id) {
+        $found = User::find($id);
+        if (!$found) {
+            return response()->json(['message' => 'Usuario no encontrado'], 404);
+        }
+        $data = $request->only(['name', 'email', 'password', 'role']);
+        if (isset($data['password'])) {
+            $data['password'] = bcrypt($data['password']);
+        } else {
+            unset($data['password']);
+        }
+        // Solo admin puede cambiar el rol
+        if ($user->role !== 'admin') {
+            unset($data['role']);
+        }
+        $found->update($data);
+        return response()->json(['message' => 'Usuario actualizado', 'data' => $found], 200);
+    }
+    return response()->json(['message' => 'No autorizado'], 403);
+}
+
+// Eliminar usuario (solo admin)
+public function deleteUser($id)
+{
+    $user = Auth::user();
+    if ($user->role !== 'admin') {
+        return response()->json(['message' => 'No autorizado'], 403);
+    }
+    $found = User::find($id);
+    if (!$found) {
+        return response()->json(['message' => 'Usuario no encontrado'], 404);
+    }
+    $found->delete();
+    return response()->json(['message' => 'Usuario eliminado'], 200);
+}
 }
