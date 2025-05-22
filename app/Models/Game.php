@@ -11,7 +11,7 @@ class Game extends Model
     //Relació amb usuari: cada partida pertany a un usuari
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class,);
     }
 }
 

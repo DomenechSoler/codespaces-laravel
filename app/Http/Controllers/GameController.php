@@ -106,4 +106,85 @@ class GameController extends Controller
             'data' => $games
         ]);
     }
+
+        // 7. Listar todas las partidas (solo admin)
+    public function adminIndex()
+    {
+        $user = Auth::user();
+        if ($user->role !== 'admin') {
+            return response()->json(['error' => 'Només per admins'], 403);
+        }
+        $games = Game::with('user')->get();
+        return response()->json([
+            'message' => 'Listado de todas las partidas',
+            'data' => $games
+        ], 200);
+    }
+
+    // 8. Mostrar una partida concreta (solo admin)
+    public function adminShow(Game $game)
+    {
+        $user = Auth::user();
+        if ($user->role !== 'admin') {
+            return response()->json(['error' => 'Només per admins'], 403);
+        }
+        $game->load('user');
+        return response()->json([
+            'message' => 'Partida encontrada',
+            'data' => $game
+        ], 200);
+    }
+
+    // 9. Crear una partida (solo admin)
+    public function adminStore(Request $request)
+    {
+        $user = Auth::user();
+        if ($user->role !== 'admin') {
+            return response()->json(['error' => 'Només per admins'], 403);
+        }
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'clicks' => 'required|integer|min:0',
+            'points' => 'required|integer|min:0',
+            'duration' => 'required|integer|min:1',
+        ]);
+        $game = Game::create($validated);
+        return response()->json([
+            'message' => 'Partida creada por admin',
+            'data' => $game
+        ], 201);
+    }
+
+    // 10. Actualizar una partida (solo admin)
+    public function adminUpdate(Request $request, Game $game)
+    {
+        $user = Auth::user();
+        if ($user->role !== 'admin') {
+            return response()->json(['error' => 'Només per admins'], 403);
+        }
+        $validated = $request->validate([
+            'user_id' => 'sometimes|exists:users,id',
+            'clicks' => 'sometimes|integer|min:0',
+            'points' => 'sometimes|integer|min:0',
+            'duration' => 'sometimes|integer|min:1',
+        ]);
+        $game->update($validated);
+        return response()->json([
+            'message' => 'Partida actualizada por admin',
+            'data' => $game
+        ], 200);
+    }
+
+    // 11. Eliminar una partida (solo admin)
+    public function adminDestroy(Game $game)
+    {
+        $user = Auth::user();
+        if ($user->role !== 'admin') {
+            return response()->json(['error' => 'Només per admins'], 403);
+        }
+        $game->delete();
+        return response()->json(['message' => 'Partida eliminada por admin'], 200);
+    }
+
+
 }

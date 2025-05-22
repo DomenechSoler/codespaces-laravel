@@ -60,4 +60,11 @@ Route::middleware([IsAdmin::class])->group(function () {
 
     // Juegos
     Route::get('games/user/{id}', [GameController::class, 'getGamesByUserId']);
+
+    // CRUD de partidas (admin) usando endpoint exclusivo
+    Route::get('games-admin', [GameController::class, 'adminIndex']);
+    Route::get('games-admin/{game}', [GameController::class, 'adminShow']);
+    Route::put('games-admin/{game}', [GameController::class, 'adminUpdate']);
+    Route::delete('games-admin/{game}', [GameController::class, 'adminDestroy']);
+    Route::post('games-admin', [GameController::class, 'adminStore']);
 });
