@@ -1,62 +1,90 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# API de Gestión de Usuarios y Mascotas
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Esta API permite gestionar usuarios y sus mascotas, utilizando autenticación JWT para proteger las rutas. Incluye funcionalidades de registro, login, gestión de usuarios (solo para administradores) y gestión de mascotas (para usuarios autenticados).
 
-## About Laravel
+## Autenticación JWT
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+JWT (JSON Web Token) es un sistema de autenticación basado en tokens. Cuando un usuario inicia sesión correctamente, el servidor genera un token JWT y se lo envía al cliente. Este token debe ser enviado en cada petición protegida (normalmente en la cabecera `Authorization: Bearer <token>`). El servidor valida el token en cada petición para comprobar la identidad del usuario y sus permisos, sin necesidad de mantener sesiones en el servidor.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+El token está formado por 3 partes separadas por puntos (.), que son: header, payload y signature. 
+1. El header (cabecera) contiene información sobre el tipo de token y el algoritmo que se usó para firmarlo.
+2. El payload es como el cuerpo del token, donde van los datos que queremos transmitir, como la id, email, rol o cuándo expira el token.
+3. La signature (firma) es una mezcla entre el header, el payload y una clave secreta que solo el servidor conoce.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-## Learning Laravel
+## Rutas de la API
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Autenticación
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- `POST /api/register`  
+  Registrar un nuevo usuario.  
+  **Body:** `name`, `role` (`admin` o `user`), `email`, `password`, `password_confirmation`
 
-## Laravel Sponsors
+- `POST /api/login`  
+  Iniciar sesión y obtener un token JWT.  
+  **Body:** `email`, `password`
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+- `POST /api/logout`  
+  Cerrar sesión (requiere autenticación JWT).
 
-### Premium Partners
+- `GET /api/me`  
+  Obtener los datos del usuario autenticado (requiere autenticación JWT).
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
+---
 
-## Contributing
+### Gestión de Usuarios (solo admin)
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- `GET /api/users`  
+  Listar todos los usuarios.
 
-## Code of Conduct
+- `GET /api/users/{id}`  
+  Obtener un usuario por ID.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- `PUT /api/users/{id}`  
+  Actualizar un usuario por ID.
 
-## Security Vulnerabilities
+- `DELETE /api/users/{id}`  
+  Eliminar un usuario por ID.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+### Gestión de Mascotas (usuario autenticado)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- `GET /api/pets`  
+  Listar las mascotas del usuario autenticado.
+
+- `POST /api/pets`  
+  Crear una nueva mascota.  
+  **Body:** `nombre`, `imagen`
+
+- `PUT /api/pets/{id}`  
+  Actualizar completamente una mascota.
+
+- `PATCH /api/pets/{id}`  
+  Actualizar parcialmente una mascota.
+
+- `DELETE /api/pets/{id}`  
+  Eliminar una mascota.
+
+---
+
+## Notas
+
+- Para acceder a las rutas protegidas, debes incluir el token JWT en la cabecera `Authorization`.
+- Solo los usuarios con rol `admin` pueden gestionar otros usuarios.
+- Cada usuario solo puede gestionar sus propias mascotas.
+
+---
+
+## Ejemplo de uso de JWT
+
+1. El usuario se registra o inicia sesión y recibe un token JWT.
+2. El cliente guarda el token y lo envía en cada petición protegida.
+3. El servidor valida el token y permite o deniega el acceso según los permisos del usuario.
+
+---
+
+## Usuario administrador
+
+- email     -->     k@gmail.com
+- password  -->     12345678
