@@ -30,13 +30,13 @@ public function store(Request $request)
 {
     $request->validate([
         'nombre' => 'required|string|max:100',
-        'url_imagen' => 'required|url',
+        'imagen' => 'required|url',
         'category_id' => 'nullable|exists:categories,id',
     ]);
 
     $tarjeta = Tarjetas::create([
         'nombre' => $request->nombre,
-        'url_imagen' => $request->url_imagen,
+        'imagen' => $request->imagen,
         'category_id' => $request->category_id,
         'user_id' => Auth::id(), // 🔑 afegim l'usuari que l'ha creat
     ]);
