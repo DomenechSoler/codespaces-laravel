@@ -30,6 +30,8 @@ Route::middleware([IsUserAuth::class])->group(function () {
 
     // Tarjetas (crear solo si está autenticado)
     Route::post('tarjetas', [TarjetasController::class, 'store']);
+    Route::put('tarjetas/{id}', [TarjetasController::class, 'update']);
+    Route::delete('tarjetas/{id}', [TarjetasController::class, 'destroy']);
 
     // Partidas
     Route::get('games', [GameController::class, 'index']);
@@ -52,11 +54,6 @@ Route::middleware([IsAdmin::class])->group(function () {
     Route::get('users/{id}', [AuthController::class, 'getUser']);
     Route::put('users/{id}', [AuthController::class, 'updateUser']);
     Route::delete('users/{id}', [AuthController::class, 'deleteUser']);
-
-    // Tarjetas
-    Route::post('tarjetas', [TarjetasController::class, 'store']);
-    Route::put('tarjetas/{id}', [TarjetasController::class, 'update']);
-    Route::delete('tarjetas/{id}', [TarjetasController::class, 'destroy']);
 
     // Juegos
     Route::get('games/user/{id}', [GameController::class, 'getGamesByUserId']);
