@@ -12,7 +12,6 @@ class Tarjetas extends Model
     protected $fillable = [
         'nombre',
         'imagen',
-        'contador_clics',
     ];
 
     public function category()

@@ -9,7 +9,7 @@ class CategoryController extends Controller
 {
    public function index()
 {
-    return Category::with('cards')->get(); // opcional
+    return Category::with('tarjetas')->get(); // opcional
 }
 
 public function store(Request $request)
