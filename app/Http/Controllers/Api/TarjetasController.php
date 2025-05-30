@@ -30,7 +30,7 @@ public function store(Request $request)
 {
     $request->validate([
         'nombre' => 'required|string|max:100',
-        'imagen' => 'required|url',
+        'imagen' => 'required|string',
         'category_id' => 'nullable|exists:categories,id',
     ]);
 
