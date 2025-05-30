@@ -12,7 +12,7 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $middleware = [
-
+        \App\Http\Middleware\Cors::class,
     ];
 
     /**
@@ -43,5 +43,6 @@ class Kernel extends HttpKernel
         'auth' => \Illuminate\Auth\Middleware\Authenticate::class,
         'IsUserAuth' => \App\Http\Middleware\IsUserAuth::class,
         'IsAdmin' => \App\Http\Middleware\IsAdmin::class,
+        'cors' => \App\Http\Middleware\Cors::class,
     ];
 }
