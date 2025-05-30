@@ -20,6 +20,10 @@ Route::get('tarjetas/category/{categoryId}', [TarjetasController::class, 'getByC
 Route::get('my-cards', [TarjetasController::class, 'myCards']);
 Route::get('public-cards', [TarjetasController::class, 'publicCards']);
 
+    Route::post('tarjetas', [TarjetasController::class, 'store']);
+    Route::put('tarjetas/{id}', [TarjetasController::class, 'update']);
+    Route::delete('tarjetas/{id}', [TarjetasController::class, 'destroy']);
+
 // RUTAS PROTEGIDAS (USUARIO AUTENTICADO)
 Route::middleware([IsUserAuth::class])->group(function () {
     // Usuario
@@ -29,9 +33,7 @@ Route::middleware([IsUserAuth::class])->group(function () {
     Route::put('users/{id}', [AuthController::class, 'updateUser']);
 
     // Tarjetas (crear solo si está autenticado)
-    Route::post('tarjetas', [TarjetasController::class, 'store']);
-    Route::put('tarjetas/{id}', [TarjetasController::class, 'update']);
-    Route::delete('tarjetas/{id}', [TarjetasController::class, 'destroy']);
+
 
     // Partidas
     Route::get('games', [GameController::class, 'index']);
