@@ -59,6 +59,7 @@ public function store(Request $request)
             'nombre' => 'sometimes|required|string|max:255',
             'imagen' => 'sometimes|nullable|string|max:255',
             'contador_clics' => 'sometimes|nullable|integer|min:0',
+            'category_id' => 'sometimes|nullable|exists:categories,id',
         ]);
 
         if ($validator->fails()) {
