@@ -96,11 +96,17 @@ public function myCards()
     ]);
 }
 
-public function destroy(Tarjetas $tarjeta)
+public function destroy($id)
 {
+    $tarjeta = Tarjetas::find($id);
     $user = Auth::user();
+
+    if (!$tarjeta) {
+        return response()->json(['error' => 'Tarjeta no encontrada'], 404);
+    }
+
     if ($tarjeta->user_id !== $user->id && $user->role !== 'admin') {
-        return response()->json(['error' => 'No autoritzat'], 403);
+        return response()->json(['error' => 'No autorizado'], 403);
     }
 
     $tarjeta->delete();
