@@ -57,7 +57,7 @@ public function store(Request $request)
 
         $validator = Validator::make($request->all(), [
             'nombre' => 'sometimes|required|string|max:255',
-            'imagen' => 'sometimes|nullable|string|max:255',
+            'imagen' => 'sometimes|nullable|string',
             'contador_clics' => 'sometimes|nullable|integer|min:0',
             'category_id' => 'sometimes|nullable|exists:categories,id',
         ]);
