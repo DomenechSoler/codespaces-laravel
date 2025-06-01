@@ -96,6 +96,7 @@ class GameController extends Controller
     }
 
     // 6. Llistar partides d'un usuari concret (només admin)
+
     public function getGamesByUserId($id)
     {
         $user = Auth::user();
@@ -103,7 +104,7 @@ class GameController extends Controller
             return response()->json(['error' => 'Només per admins'], 403);
         }
 
-        $games = Game::where('user_id', $id)->get();
+        $games = Game::with('category')->where('user_id', $id)->get();
 
         return response()->json([
             'message' => "Partides de l’usuari $id",
@@ -118,7 +119,7 @@ class GameController extends Controller
         if ($user->role !== 'admin') {
             return response()->json(['error' => 'Només per admins'], 403);
         }
-        $games = Game::with('user')->get();
+        $games = Game::with('user', 'category')->get();
         return response()->json([
             'message' => 'Listado de todas las partidas',
             'data' => $games
@@ -132,7 +133,7 @@ class GameController extends Controller
         if ($user->role !== 'admin') {
             return response()->json(['error' => 'Només per admins'], 403);
         }
-        $game->load('user');
+        $game->load('user', 'category');
         return response()->json([
             'message' => 'Partida encontrada',
             'data' => $game
