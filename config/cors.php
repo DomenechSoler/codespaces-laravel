@@ -6,6 +6,8 @@ return [
         'http://localhost:3000',
         'https://codespaces-laravel-production.up.railway.app',
         'https://memory-game-3to2.vercel.app',
+        'https://memory-game-dzwi.vercel.app',
+
     ],
     'allowed_origins_patterns' => [],
     'allowed_headers' => ['*'],
