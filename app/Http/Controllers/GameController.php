@@ -83,24 +83,30 @@ class GameController extends Controller
     }
 
     // 5. Ranking (top 5 jugadors)
-    public function ranking()
-    {
-        $ranking = Game::with('user', 'category')
-            ->select('user_id', 'category_id')
-            ->selectRaw('MIN(duration) as best_time')
-            ->selectRaw('MIN(clicks) as min_clicks')
-            ->selectRaw('MAX(points) as max_points')
-            ->groupBy('user_id', 'category_id')
-            ->orderBy('best_time')
-            ->orderBy('min_clicks')
-            ->take(5)
-            ->get();
+public function ranking(Request $request)
+{
+    $query = Game::with('user', 'category');
 
-        return response()->json([
-            'message' => 'Top 5 jugadors',
-            'data' => $ranking
-        ], 200);
+    if ($request->has('category_id')) {
+        $query->where('category_id', $request->category_id);
     }
+
+    $ranking = $query
+        ->select('user_id', 'category_id')
+        ->selectRaw('MIN(duration) as best_time')
+        ->selectRaw('MIN(clicks) as min_clicks')
+        ->selectRaw('MAX(points) as max_points')
+        ->groupBy('user_id', 'category_id')
+        ->orderBy('best_time')
+        ->orderBy('min_clicks')
+        ->take(5)
+        ->get();
+
+    return response()->json([
+        'message' => 'Top 5 jugadors',
+        'data' => $ranking
+    ], 200);
+}
 
     // 6. Llistar partides d'un usuari concret (només admin)
 
