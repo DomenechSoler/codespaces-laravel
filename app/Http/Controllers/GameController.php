@@ -186,5 +186,18 @@ class GameController extends Controller
         return response()->json(['message' => 'Partida eliminada por admin'], 200);
     }
 
+public function show(Game $game)
+{
+    $user = Auth::user();
+    // Solo el propietario o admin puede ver la partida
+    if ($user->id !== $game->user_id && $user->role !== 'admin') {
+        return response()->json(['error' => 'No autorizado'], 403);
+    }
+    return response()->json([
+        'message' => 'Partida encontrada',
+        'data' => $game
+    ], 200);
+}
+
 
 }

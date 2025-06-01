@@ -20,6 +20,7 @@ Route::get('tarjetas/category/{categoryId}', [TarjetasController::class, 'getByC
 Route::get('my-cards', [TarjetasController::class, 'myCards']);
 Route::get('public-cards', [TarjetasController::class, 'publicCards']);
 
+
 // RUTAS PROTEGIDAS (USUARIO AUTENTICADO)
 Route::middleware([IsUserAuth::class])->group(function () {
     // Usuario
@@ -34,11 +35,14 @@ Route::middleware([IsUserAuth::class])->group(function () {
     Route::delete('tarjetas/{id}', [TarjetasController::class, 'destroy']);
 
     // Partidas
-    Route::get('games', [GameController::class, 'index']);
+    Route::get('games/user/{id}', [GameController::class, 'getGamesByUserId']); // ESPECÍFICA
+    Route::get('games', [GameController::class, 'index']); // LISTADO GENERAL
     Route::post('games', [GameController::class, 'store']);
+    Route::get('ranking', [GameController::class, 'ranking']);
     Route::put('games/{game}/finish', [GameController::class, 'update']);
     Route::delete('games/{game}', [GameController::class, 'destroy']);
-    Route::get('ranking', [GameController::class, 'ranking']);
+    Route::get('games/{game}', [GameController::class, 'show']); // <-- ESTA AL FINAL
+
 
     // Categorías
     Route::get('categories', [CategoryController::class, 'index']);
