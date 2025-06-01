@@ -34,9 +34,16 @@ class GameController extends Controller
             'duration' => null,
             'category_id' => $request->category_id,
         ]);
+
+        $tarjetas = [];
+        if ($request->category_id) {
+            $tarjetas = \App\Models\Tarjetas::where('category_id', $request->category_id)->get();
+        }
+
         return response()->json([
             'message' => 'Partida creada',
-            'data' => $game
+            'data' => $game,
+            'tarjetas' => $tarjetas,
         ], 201);
     }
 
