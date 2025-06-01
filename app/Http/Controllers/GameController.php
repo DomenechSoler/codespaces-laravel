@@ -12,24 +12,28 @@ class GameController extends Controller
     public function index()
     {
         $userId = Auth::id();
-        $games = Game::where('user_id', $userId)->get();
+        $games = Game::with('category')
+            ->where('user_id', $userId)
+            ->get();
 
         return response()->json([
             'message' => 'Llistat de partides',
             'data' => $games
         ], 200);
     }
-
     // 2. Crear una nova partida buida
-    public function store()
+    public function store(Request $request)
     {
+        $request->validate([
+            'category_id' => 'nullable|exists:categories,id',
+        ]);
         $game = Game::create([
             'user_id' => Auth::id(),
             'clicks' => 0,
             'points' => 0,
-            'duration' => null
+            'duration' => null,
+            'category_id' => $request->category_id,
         ]);
-
         return response()->json([
             'message' => 'Partida creada',
             'data' => $game
@@ -74,14 +78,14 @@ class GameController extends Controller
     // 5. Ranking (top 5 jugadors)
     public function ranking()
     {
-        $ranking = Game::select('user_id')
+        $ranking = Game::with('user', 'category')
+            ->select('user_id', 'category_id')
             ->selectRaw('MIN(duration) as best_time')
             ->selectRaw('MIN(clicks) as min_clicks')
             ->selectRaw('MAX(points) as max_points')
-            ->groupBy('user_id')
+            ->groupBy('user_id', 'category_id')
             ->orderBy('best_time')
             ->orderBy('min_clicks')
-            ->with('user')
             ->take(5)
             ->get();
 
@@ -107,7 +111,7 @@ class GameController extends Controller
         ]);
     }
 
-        // 7. Listar todas las partidas (solo admin)
+    // 7. Listar todas las partidas (solo admin)
     public function adminIndex()
     {
         $user = Auth::user();
@@ -186,18 +190,16 @@ class GameController extends Controller
         return response()->json(['message' => 'Partida eliminada por admin'], 200);
     }
 
-public function show(Game $game)
-{
-    $user = Auth::user();
-    // Solo el propietario o admin puede ver la partida
-    if ($user->id !== $game->user_id && $user->role !== 'admin') {
-        return response()->json(['error' => 'No autorizado'], 403);
+    public function show(Game $game)
+    {
+        $user = Auth::user();
+        // Solo el propietario o admin puede ver la partida
+        if ($user->id !== $game->user_id && $user->role !== 'admin') {
+            return response()->json(['error' => 'No autorizado'], 403);
+        }
+        return response()->json([
+            'message' => 'Partida encontrada',
+            'data' => $game
+        ], 200);
     }
-    return response()->json([
-        'message' => 'Partida encontrada',
-        'data' => $game
-    ], 200);
-}
-
-
 }
