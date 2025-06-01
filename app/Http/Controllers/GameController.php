@@ -46,7 +46,7 @@ class GameController extends Controller
         $validated = $request->validate([
             'clicks' => 'required|integer|min:0',
             'points' => 'required|integer|min:0',
-            'duration' => 'required|integer|min:1',
+            'duration' => 'nullable|integer|min:1',
         ]);
 
         $game->update($validated);
